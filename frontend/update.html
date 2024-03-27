@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Registration</title>
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Include custom CSS if needed -->
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>Update User Details</h2>
+    <form id="registrationForm">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="phoneNumber">Phone No:</label>
+        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" required>
+      </div>
+      <div class="form-group">
+        <label for="profession">Profession:</label>
+        <input type="text" class="form-control" id="profession" name="profession" required>
+      </div>
+      <button type="submit" class="btn btn-primary" id="registerButton">Update</button>
+    </form>
+    <button type="button" class="btn btn-danger mt-1" id="deleteButton">Delete</button>
+    <!-- <a  class="btn btn-danger mt-1" href="/frontend/update.html">Delete Account</a> -->
+  </div>
+
+  <!-- Include Bootstrap JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script>
+    // Function to fetch authorized users from the backend API
+    function fetchAuthorizedUsers() {
+      // Get access token from cookie
+      const accessToken = getCookie('accessToken');
+      console.log('Access Token:', accessToken); 
+      // Check if access token exists
+      if (!accessToken) {
+        console.error('Access token not found');
+        return;
+      }
+
+      // Make a GET request to fetch user data
+      $.ajax({
+        type: 'GET',
+        url: 'http://localhost:8001/api/v1/users/cuurent-user',
+        
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        },
+        success: function(response) {
+            // Populate form fields with user data
+            $('#name').val(response.data.name);
+            $('#email').val(response.data.email);
+            $('#phoneNumber').val(response.data.phoneNumber);
+            $('#profession').val(response.data.profession);
+        },
+        error: function(xhr, status, error) {
+          console.error('Failed to fetch user data:', xhr.responseText);
+        }
+      });
+    }
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    // Call fetchAuthorizedUsers() when the page loads
+    $(document).ready(function() {
+      fetchAuthorizedUsers();
+    });
+
+    // Function to handle registration form submission
+    $('#registrationForm').submit(function(event) {
+      event.preventDefault(); // Prevent default form submission
+      const accessToken = getCookie('accessToken');
+      // Extract form data
+      var formData = {
+        name: $('#name').val(),
+        email: $('#email').val(), 
+        phoneNumber: $('#phoneNumber').val(),
+        profession: $('#profession').val()
+      };
+
+      
+
+      // Send PATCH request to update user account
+      $.ajax({
+        type: 'PATCH',
+        url: 'http://localhost:8001/api/v1/users/update-account', // Backend endpoint for updating user account
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        },
+
+        success: function(response) {
+          // Handle successful registration
+          alert('Update successful!');
+          // You can redirect the user to another page or perform other actions here
+        },
+        error: function(xhr, status, error) {
+          // Handle error
+          alert('Update failed: ' + xhr.responseText);
+        }
+      });
+    });
+        // Function to handle delete user button click
+    $('#deleteButton').click(function(event) {
+        event.preventDefault();
+
+      const accessToken = getCookie('accessToken');
+
+      // Send DELETE request to delete user account
+      $.ajax({
+        type: 'DELETE',
+        url: 'http://localhost:8001/api/v1/users/delete-account', // Backend endpoint for deleting user account
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        },
+
+        success: function(response) {
+          // Handle successful deletion
+          alert('User account deleted successfully!');
+          // Clear cookies
+          document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          // Redirect to the login page
+          window.location.href = "index.html";
+        },
+        error: function(xhr, status, error) {
+          // Handle error
+          alert('Failed to delete user account: ' + xhr.responseText);
+        }
+      });
+    });
+
+      
+    
+  </script>
+  
+</body>
+</html>

@@ -190,14 +190,13 @@ const registerUser = asyncHandler(async (req,res) => {
                 .status(200)
                 .json(new ApiResponse(200, user, "Account Deatils Updated Successfully"))
           })
-
+          const getUser = asyncHandler(async(req,res)=>{
+            return res
+            .status(200)
+            .json(new ApiResponse(200, req.user , "current user fetched succesfully"))
+          })
           const getRegisteredUsers = asyncHandler(async(req,res)=>{
 
-            const objectId = req.body;
-            if(!objectId){
-              throw new ApiError(404, "inavlid id")
-            }
-            console.log("ObjectId:", objectId);
               const users = await User.find({  });
               
               
@@ -211,13 +210,13 @@ const registerUser = asyncHandler(async (req,res) => {
 
 
           const deleteUser = asyncHandler(async(req,res)=>{
-
-            const objectId = req.body;
-            if(!objectId){
+            const userId= req.user._id
+            
+            if(!userId){
               throw new ApiError(404, "inavlid id")
             }
-            console.log("ObjectId:", objectId);
-              const user = await User.findByIdAndDelete(objectId);
+            
+              const user = await User.findByIdAndDelete(req.user._id);
                if (!user) {
                   throw new ApiError(404, "NOT FOUND");
               }
@@ -226,4 +225,4 @@ const registerUser = asyncHandler(async (req,res) => {
             .json(new ApiResponse(200, user , "Registered user deleted  succesfully"))
           })
 
-     export { registerUser , refreshAccessToken, loginUser , getRegisteredUsers, updateUserDetails,deleteUser}
+     export { registerUser , refreshAccessToken, loginUser , getRegisteredUsers, updateUserDetails,deleteUser,getUser}

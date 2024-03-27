@@ -10,7 +10,7 @@ export const  verifyJWT = asyncHandler(async(req, _, next)=>{
     ("Authorization")?.replace("Bearer ", "")
       
     if(!token){
-     throw new ApiError (401, "Unauthorised request")
+     throw new ApiError (401, "Unauthorized request. Authentication token not found or expired.")
     }
  
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
